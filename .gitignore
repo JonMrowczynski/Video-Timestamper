@@ -1,0 +1,7 @@
+/build/
+/dist/
+/venv/
+/upx.exe
+/video_timestamper.spec
+/temp_audio.wav
+/temp_timestamped_video.mp4
