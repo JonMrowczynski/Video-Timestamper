@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018-2022 Jon Mrowczynski
+Copyright (c) 2022 Jon Mrowczynski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -14,7 +14,9 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-This script ...
+This script timestamps videos in a given input directory and outputs the timestamped videos into a given output
+directory as MP4s. The last modified timestamp of the video file is used as the end timestamp of the video since this
+is when the video is written to file.
 """
 
 from argparse import ArgumentParser
@@ -58,7 +60,7 @@ def _extract_audio(video_path: str) -> None:
     print('Extracted Audio!')
 
 
-def _add_timestamp(video_path: str) -> None:
+def _timestamp_frames(video_path: str) -> None:
     """
     Adds timestamps to the video at video_path and saves the video as an MP4.
 
@@ -112,7 +114,7 @@ def timestamp_video(video_path: str, output_path: str) -> None:
     """
     print(f'Timestamping "{video_path}"...')
     _extract_audio(video_path)
-    _add_timestamp(video_path)
+    _timestamp_frames(video_path)
     _merge_audio_and_video(video_path, output_path)
     print(f'Timestamped "{video_path}"!')
 
