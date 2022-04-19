@@ -29,7 +29,7 @@ from typing import Final
 from cv2 import VideoCapture, CAP_PROP_FPS, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, \
     putText, FONT_HERSHEY_SIMPLEX, VideoWriter, VideoWriter_fourcc
 from ffmpeg import input, concat
-from moviepy.editor import VideoFileClip
+from moviepy.editor import AudioFileClip
 from tqdm import tqdm
 
 # The name of the temporary audio file that contains the audio from the original input video.
@@ -55,8 +55,8 @@ def _extract_audio(video_path: str) -> None:
     :param video_path: the path to the video whose audio is to be written to a temporary WAV file.
     """
     print('Extracting Audio...')
-    with VideoFileClip(video_path) as video:
-        video.audio.write_audiofile(TEMP_AUDIO_FILE_NAME)
+    with AudioFileClip(video_path) as audio:
+        audio.write_audiofile(TEMP_AUDIO_FILE_NAME)
     print('Extracted Audio!')
 
 
