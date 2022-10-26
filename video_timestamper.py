@@ -60,12 +60,7 @@ def _extract_audio(video_path: str) -> None:
     print('Extracted Audio!')
 
 
-def _timestamp_frames(video_path: str) -> None:
-    """
-    Adds timestamps to the video at video_path and saves the video as an MP4.
-
-    :param video_path: the path to the video that will have timestamps added to the bottom-left corner of the screen.
-    """
+def _serial_process(video_path: str):
     print('Adding Timestamps to Video...')
     video = VideoCapture(video_path)
     fps, total_frames = video.get(CAP_PROP_FPS), int(video.get(CAP_PROP_FRAME_COUNT))
@@ -85,6 +80,50 @@ def _timestamp_frames(video_path: str) -> None:
     video.release()
     writer.release()
     print('Added Timestamps to Video!')
+
+
+def parallel_process(video_path: str):
+    print('Adding Timestamps to Video...')
+    # Serially read frames from the video.
+    video = VideoCapture(video_path)
+    total_frames, video_frames = int(video.get(CAP_PROP_FRAME_COUNT)), []
+    with tqdm(total=total_frames, position=0, leave=False, dynamic_ncols=True) as pbar:
+        while pbar.n < total_frames:
+            _, frame = video.read()  # Success is ignored since the videos that we are dealing with are stable.
+            video_frames.append(frame)
+            pbar.update()
+    video.release()
+
+    # Parallelize the timestamping process
+    fps = video.get(CAP_PROP_FPS)
+    w, h = int(video.get(CAP_PROP_FRAME_WIDTH)), int(video.get(CAP_PROP_FRAME_HEIGHT))
+    with tqdm(total=total_frames, position=0, leave=False, dynamic_ncols=True) as pbar:
+        video_end_date_time = datetime.fromtimestamp(Path(video_path).stat().st_mtime)
+        pbar.update()
+        text_height = h - TEXT_OFFSET
+        for frame in video_frames:
+            time_offset = timedelta(seconds=((total_frames - pbar.n) / fps))
+            timestamp = (video_end_date_time - time_offset).strftime(DATE_TIME_FORMAT)
+            putText(frame, timestamp, (TEXT_OFFSET, text_height), FONT_HERSHEY_SIMPLEX, 1, WHITE, 1)
+            pbar.update()
+
+    # Serially write the frames to video.
+    writer = VideoWriter(TEMP_TIMESTAMPED_VIDEO_FILE_NAME, VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+    with tqdm(total=total_frames, position=0, leave=False, dynamic_ncols=True) as pbar:
+        for frame in video_frames:
+            writer.write(frame)
+    writer.release()
+
+    print('Added Timestamps to Video!')
+
+
+def _timestamp_frames(video_path: str) -> None:
+    """
+    Adds timestamps to the video at video_path and saves the video as an MP4.
+
+    :param video_path: the path to the video that will have timestamps added to the bottom-left corner of the screen.
+    """
+    _serial_process(video_path)
 
 
 def _merge_audio_and_video(video_input_path: str, output_path: str) -> None:
